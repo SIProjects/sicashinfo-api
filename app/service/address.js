@@ -2,7 +2,7 @@ const {Service} = require('egg')
 
 class AddressService extends Service {
   async getAddressSummary(addressIds, p2pkhAddressIds, rawAddresses) {
-    const {Address} = this.ctx.app.qtuminfo.lib
+    const {Address} = this.ctx.app.sicashinfo.lib
     const {Block} = this.ctx.model
     const {balance: balanceService, qrc20: qrc20Service, qrc721: qrc721Service} = this.ctx.service
     const {in: $in, gt: $gt} = this.app.Sequelize.Op
@@ -44,7 +44,7 @@ class AddressService extends Service {
   }
 
   async getAddressTransactionCount(addressIds, rawAddresses) {
-    const {Address: RawAddress, Solidity} = this.app.qtuminfo.lib
+    const {Address: RawAddress, Solidity} = this.app.sicashinfo.lib
     const TransferABI = Solidity.qrc20ABIs.find(abi => abi.name === 'Transfer')
     const db = this.ctx.model
     const {Address} = db
@@ -77,7 +77,7 @@ class AddressService extends Service {
   }
 
   async getAddressTransactions(addressIds, rawAddresses) {
-    const {Address: RawAddress, Solidity} = this.app.qtuminfo.lib
+    const {Address: RawAddress, Solidity} = this.app.sicashinfo.lib
     const TransferABI = Solidity.qrc20ABIs.find(abi => abi.name === 'Transfer')
     const db = this.ctx.model
     const {Address} = db
@@ -215,7 +215,7 @@ class AddressService extends Service {
   }
 
   async getAddressQRC20TokenTransactionCount(rawAddresses, token) {
-    const {Address, Solidity} = this.app.qtuminfo.lib
+    const {Address, Solidity} = this.app.sicashinfo.lib
     const TransferABI = Solidity.qrc20ABIs.find(abi => abi.name === 'Transfer')
     const {EvmReceiptLog: EVMReceiptLog} = this.ctx.model
     const {or: $or, in: $in} = this.app.Sequelize.Op
@@ -236,7 +236,7 @@ class AddressService extends Service {
   }
 
   async getAddressQRC20TokenTransactions(rawAddresses, token) {
-    const {Address, Solidity} = this.app.qtuminfo.lib
+    const {Address, Solidity} = this.app.sicashinfo.lib
     const TransferABI = Solidity.qrc20ABIs.find(abi => abi.name === 'Transfer')
     const db = this.ctx.model
     const {sql} = this.ctx.helper
@@ -305,7 +305,7 @@ class AddressService extends Service {
   }
 
   async getAddressQRC20TokenMempoolTransactions(rawAddresses, token) {
-    const {Address: RawAddress, OutputScript, Solidity} = this.app.qtuminfo.lib
+    const {Address: RawAddress, OutputScript, Solidity} = this.app.sicashinfo.lib
     const transferABI = Solidity.qrc20ABIs.find(abi => abi.name === 'transfer')
     const {Address, Transaction, TransactionOutput, Contract, EvmReceipt: EVMReceipt, where, col} = this.ctx.model
     let hexAddresses = rawAddresses

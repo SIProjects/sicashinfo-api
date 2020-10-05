@@ -67,7 +67,7 @@ class InfoService extends Service {
   }
 
   async getFeeRates() {
-    let client = new this.app.qtuminfo.rpc(this.app.config.qtuminfo.rpc)
+    let client = new this.app.sicashinfo.rpc(this.app.config.sicashinfo.rpc)
     let results = await Promise.all([2, 4, 6, 10, 12, 24].map(blocks => client.estimatesmartfee(blocks)))
     return [
       {blocks: 2, feeRate: results[0].feerate || 0.004},
@@ -80,7 +80,7 @@ class InfoService extends Service {
   }
 
   async getDGPInfo() {
-    let client = new this.app.qtuminfo.rpc(this.app.config.qtuminfo.rpc)
+    let client = new this.app.sicashinfo.rpc(this.app.config.sicashinfo.rpc)
     let info = await client.getdgpinfo()
     return {
       maxBlockSize: info.maxblocksize,

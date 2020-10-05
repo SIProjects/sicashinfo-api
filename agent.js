@@ -4,7 +4,7 @@ module.exports = function(agent) {
   let tip = null
 
   agent.messenger.on('egg-ready', () => {
-    let io = SocketClient(`http://localhost:${agent.config.qtuminfo.port}`)
+    let io = SocketClient(`http://localhost:${agent.config.sicashinfo.port}`)
     io.on('tip', newTip => {
       tip = newTip
       agent.messenger.sendToApp('block-tip', tip)

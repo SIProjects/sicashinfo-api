@@ -8,7 +8,7 @@ const redisConfig = {
   db: 0
 }
 
-exports.keys = 'qtuminfo-api'
+exports.keys = 'sicashinfo-api'
 
 exports.security = {
   csrf: {enable: false}
@@ -36,7 +36,7 @@ exports.ratelimit = {
 exports.io = {
   redis: {
     ...redisConfig,
-    key: 'qtuminfo-api-socket.io'
+    key: 'sicashinfo-api-socket.io'
   },
   namespace: {
     '/': {connectionMiddleware: ['connection']}
@@ -45,19 +45,19 @@ exports.io = {
 
 exports.sequelize = {
   dialect: 'mysql',
-  database: 'qtum_mainnet',
+  database: 'sicash_mainnet',
   host: 'localhost',
   port: 3306,
-  username: 'qtum',
+  username: 'sicash',
   password: ''
 }
 
-exports.qtum = {
+exports.sicash = {
   chain: 'mainnet'
 }
 
-exports.qtuminfo = {
-  path: path.resolve('..', 'qtuminfo'),
+exports.sicashinfo = {
+  path: path.resolve('..', 'sicashinfo'),
   port: 3001,
   rpc: {
     protocol: 'http',

@@ -1,9 +1,9 @@
 {
-  "name": "qtuminfo-api",
+  "name": "sicashinfo-api",
   "private": true,
   "scripts": {
-    "start": "egg-scripts start --title=qtuminfo-api --sticky --daemon",
-    "stop": "egg-scripts stop --title=qtuminfo-api",
+    "start": "egg-scripts start --title=sicashinfo-api --sticky --daemon",
+    "stop": "egg-scripts stop --title=sicashinfo-api",
     "dev": "egg-bin dev",
     "lint": "eslint --ext .js app config"
   },

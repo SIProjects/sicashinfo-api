@@ -193,14 +193,14 @@ GET /address/:address/txs
     <tbody>
         <tr>
             <td colspan="3">
-              <a href="https://github.com/qtumproject/qtuminfo-api/blob/master/README.md#Pagination-Parameters">
+              <a href="https://github.com/SICashProjects/sicashinfo-api/blob/master/README.md#Pagination-Parameters">
                 Pagination Parameters
               </a>
             </td>
         </tr>
         <tr>
             <td colspan="3">
-              <a href="https://github.com/qtumproject/qtuminfo-api/blob/master/README.md#Block--Timestamp-Filter-Parameters">
+              <a href="https://github.com/SICashProjects/sicashinfo-api/blob/master/README.md#Block--Timestamp-Filter-Parameters">
                 Block / Timestamp Filter Parameters
               </a>
             </td>
@@ -243,7 +243,7 @@ GET /address/QZDJya5Szfux2op7qhHUGKsBT4eGiyTPkH/txs?limit=10&offset=0&reversed=f
 
 
 ## Address Basic Transactions
-Returns all transactions the address changes it's QTUM balance.
+Returns all transactions the address changes it's SICASH balance.
 
 **Request URL**
 ```
@@ -262,14 +262,14 @@ GET /address/:address/basic-txs
     <tbody>
         <tr>
             <td colspan="3">
-              <a href="https://github.com/qtumproject/qtuminfo-api/blob/master/README.md#Pagination-Parameters">
+              <a href="https://github.com/SICashProjects/sicashinfo-api/blob/master/README.md#Pagination-Parameters">
                 Pagination Parameters
               </a>
             </td>
         </tr>
         <tr>
             <td colspan="3">
-              <a href="https://github.com/qtumproject/qtuminfo-api/blob/master/README.md#Block--Timestamp-Filter-Parameters">
+              <a href="https://github.com/SICashProjects/sicashinfo-api/blob/master/README.md#Block--Timestamp-Filter-Parameters">
                 Block / Timestamp Filter Parameters
               </a>
             </td>
@@ -377,14 +377,14 @@ GET /address/:address/contract-txs/:contract
     <tbody>
         <tr>
             <td colspan="3">
-              <a href="https://github.com/qtumproject/qtuminfo-api/blob/master/README.md#Pagination-Parameters">
+              <a href="https://github.com/SICashProjects/sicashinfo-api/blob/master/README.md#Pagination-Parameters">
                 Pagination Parameters
               </a>
             </td>
         </tr>
         <tr>
             <td colspan="3">
-              <a href="https://github.com/qtumproject/qtuminfo-api/blob/master/README.md#Block--Timestamp-Filter-Parameters">
+              <a href="https://github.com/SICashProjects/sicashinfo-api/blob/master/README.md#Block--Timestamp-Filter-Parameters">
                 Block / Timestamp Filter Parameters
               </a>
             </td>
@@ -802,14 +802,14 @@ GET /address/:address/qrc20-txs/:tokenAddress
     <tbody>
         <tr>
             <td colspan="3">
-              <a href="https://github.com/qtumproject/qtuminfo-api/blob/master/README.md#Pagination-Parameters">
+              <a href="https://github.com/SICashProjects/sicashinfo-api/blob/master/README.md#Pagination-Parameters">
                 Pagination Parameters
               </a>
             </td>
         </tr>
         <tr>
             <td colspan="3">
-              <a href="https://github.com/qtumproject/qtuminfo-api/blob/master/README.md#Block--Timestamp-Filter-Parameters">
+              <a href="https://github.com/SICashProjects/sicashinfo-api/blob/master/README.md#Block--Timestamp-Filter-Parameters">
                 Block / Timestamp Filter Parameters
               </a>
             </td>
@@ -979,7 +979,7 @@ GET /address/:address/balance-history
     <tbody>
         <tr>
             <td colspan="3">
-              <a href="https://github.com/qtumproject/qtuminfo-api/blob/master/README.md#Pagination-Parameters">
+              <a href="https://github.com/SICashProjects/sicashinfo-api/blob/master/README.md#Pagination-Parameters">
                 Pagination Parameters
               </a>
             </td>
@@ -1071,7 +1071,7 @@ GET /address/:address/qrc20-balance-history/:token
     <tbody>
         <tr>
             <td colspan="3">
-              <a href="https://github.com/qtumproject/qtuminfo-api/blob/master/README.md#Pagination-Parameters">
+              <a href="https://github.com/SICashProjects/sicashinfo-api/blob/master/README.md#Pagination-Parameters">
                 Pagination Parameters
               </a>
             </td>

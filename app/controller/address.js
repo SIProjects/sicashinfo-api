@@ -233,7 +233,7 @@ class AddressController extends Controller {
   }
 
   async qrc20BalanceHistory() {
-    const {Address} = this.app.qtuminfo.lib
+    const {Address} = this.app.sicashinfo.lib
     let {ctx} = this
     let tokenAddress = null
     if (ctx.state.token) {
