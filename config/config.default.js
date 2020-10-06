@@ -4,7 +4,7 @@ const Redis = require('ioredis')
 const redisConfig = {
   host: 'localhost',
   port: 6379,
-  password: '',
+  password: 'foobared',
   db: 0
 }
 
@@ -15,6 +15,10 @@ exports.security = {
 }
 
 exports.middleware = ['ratelimit']
+
+exports.cors = {
+    origin: '*'  // Access-Control-Allow-Origin: *
+}
 
 exports.redis = {
   client: redisConfig
@@ -45,15 +49,15 @@ exports.io = {
 
 exports.sequelize = {
   dialect: 'mysql',
-  database: 'sicash_mainnet',
+  database: 'sicash_testnet',
   host: 'localhost',
   port: 3306,
   username: 'sicash',
-  password: ''
+  password: 'sicash123'
 }
 
 exports.sicash = {
-  chain: 'mainnet'
+  chain: 'testnet'
 }
 
 exports.sicashinfo = {
@@ -62,7 +66,7 @@ exports.sicashinfo = {
   rpc: {
     protocol: 'http',
     host: 'localhost',
-    port: 3889,
+    port: 18332,
     user: 'user',
     password: 'password'
   }
