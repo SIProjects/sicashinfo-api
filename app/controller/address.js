@@ -12,7 +12,7 @@ class AddressController extends Controller {
       unconfirmed: summary.unconfirmed.toString(),
       staking: summary.staking.toString(),
       mature: summary.mature.toString(),
-      qrc20Balances: summary.qrc20Balances.map(item => ({
+      src20Balances: summary.src20Balances.map(item => ({
         address: item.addressHex.toString('hex'),
         addressHex: item.addressHex.toString('hex'),
         name: item.name,
@@ -25,7 +25,7 @@ class AddressController extends Controller {
         },
         isUnconfirmed: item.isUnconfirmed
       })),
-      qrc721Balances: summary.qrc721Balances.map(item => ({
+      src721Balances: summary.src721Balances.map(item => ({
         address: item.addressHex.toString('hex'),
         addressHex: item.addressHex.toString('hex'),
         name: item.name,
@@ -74,13 +74,13 @@ class AddressController extends Controller {
     ctx.body = unconfirmed.toString()
   }
 
-  async qrc20TokenBalance() {
+  async src20TokenBalance() {
     let {ctx} = this
     let {address, token} = ctx.state
-    if (token.type !== 'qrc20') {
+    if (token.type !== 'src20') {
       ctx.body = {}
     }
-    let {name, symbol, decimals, balance, unconfirmed} = await ctx.service.qrc20.getQRC20Balance(address.rawAddresses, token.contractAddress)
+    let {name, symbol, decimals, balance, unconfirmed} = await ctx.service.src20.getSRC20Balance(address.rawAddresses, token.contractAddress)
     ctx.body = {
       name,
       symbol,
@@ -160,10 +160,10 @@ class AddressController extends Controller {
     }
   }
 
-  async qrc20TokenTransactions() {
+  async src20TokenTransactions() {
     let {ctx} = this
     let {address, token} = ctx.state
-    let {totalCount, transactions} = await ctx.service.address.getAddressQRC20TokenTransactions(address.rawAddresses, token)
+    let {totalCount, transactions} = await ctx.service.address.getAddressSRC20TokenTransactions(address.rawAddresses, token)
     ctx.body = {
       totalCount,
       transactions: transactions.map(transaction => ({
@@ -183,10 +183,10 @@ class AddressController extends Controller {
     }
   }
 
-  async qrc20TokenMempoolTransactions() {
+  async src20TokenMempoolTransactions() {
     let {ctx} = this
     let {address, token} = ctx.state
-    let transactions = await ctx.service.address.getAddressQRC20TokenMempoolTransactions(address.rawAddresses, token)
+    let transactions = await ctx.service.address.getAddressSRC20TokenMempoolTransactions(address.rawAddresses, token)
     ctx.body = transactions.map(transaction => ({
       transactionId: transaction.transactionId.toString('hex'),
       outputIndex: transaction.outputIndex,
@@ -232,12 +232,12 @@ class AddressController extends Controller {
     }
   }
 
-  async qrc20BalanceHistory() {
+  async src20BalanceHistory() {
     const {Address} = this.app.sicashinfo.lib
     let {ctx} = this
     let tokenAddress = null
     if (ctx.state.token) {
-      if (ctx.state.token.type === 'qrc20') {
+      if (ctx.state.token.type === 'src20') {
         tokenAddress = ctx.state.token.contractAddress
       } else {
         ctx.body = {
@@ -250,7 +250,7 @@ class AddressController extends Controller {
     let hexAddresses = ctx.state.address.rawAddresses
       .filter(address => address.type === Address.PAY_TO_PUBLIC_KEY_HASH)
       .map(address => address.data)
-    let {totalCount, transactions} = await ctx.service.qrc20.getQRC20BalanceHistory(hexAddresses, tokenAddress)
+    let {totalCount, transactions} = await ctx.service.src20.getSRC20BalanceHistory(hexAddresses, tokenAddress)
     ctx.body = {
       totalCount,
       transactions: transactions.map(tx => ({

@@ -1,16 +1,16 @@
-# QRC20 API
+# SRC20 API
 
-- [QRC20 API](#QRC20-API)
-  - [QRC20 list](#QRC20-list)
-  - [QRC20 Transaction list](#QRC20-Transaction-list)
+- [SRC20 API](#SRC20-API)
+  - [SRC20 list](#SRC20-list)
+  - [SRC20 Transaction list](#SRC20-Transaction-list)
 
 
-## QRC20 list
-List all qrc20 tokens order by transfer transactions count.
+## SRC20 list
+List all src20 tokens order by transfer transactions count.
 
 **Request URL**
 ```
-GET /qrc20
+GET /src20
 ```
 
 **Request Parameter**
@@ -35,7 +35,7 @@ GET /qrc20
 
 **Request**
 ```
-GET /qrc20?limit=10&offset=0
+GET /src20?limit=10&offset=0
 ```
 
 **Response**
@@ -158,11 +158,11 @@ GET /qrc20?limit=10&offset=0
 ```
 
 
-## QRC20 Transaction list
+## SRC20 Transaction list
 
 **Request URL**
 ```
-GET /qrc20/:token/txs
+GET /src20/:token/txs
 ```
 
 **Request Parameter**
@@ -203,7 +203,7 @@ GET /qrc20/:token/txs
 
 **Request**
 ```
-GET /qrc20/f2033ede578e17fa6231047265010445bca8cf1c/txs?limit=5&offset=0
+GET /src20/f2033ede578e17fa6231047265010445bca8cf1c/txs?limit=5&offset=0
 ```
 
 **Response**

@@ -308,7 +308,7 @@ class BlockService extends Service {
   async getBlockAddressTransactions(height) {
     const {Address, Transaction, BalanceChange, EvmReceipt: EVMReceipt, EvmReceiptLog: EVMReceiptLog, Contract} = this.ctx.model
     const {Address: RawAddress} = this.app.sicashinfo.lib
-    const TransferABI = this.app.sicashinfo.lib.Solidity.qrc20ABIs.find(abi => abi.name === 'Transfer')
+    const TransferABI = this.app.sicashinfo.lib.Solidity.src20ABIs.find(abi => abi.name === 'Transfer')
     let result = []
     let balanceChanges = await BalanceChange.findAll({
       attributes: [],
@@ -362,7 +362,7 @@ class BlockService extends Service {
       let set = result[receipt.indexInBlock] = result[receipt.indexInBlock] || new Set()
       set.add(contract.addressString)
       if (Buffer.compare(topic1, TransferABI.id) === 0 && topic3) {
-        if (contract.type === 'qrc20' && !topic4 || contract.type === 'qrc721' && topic4) {
+        if (contract.type === 'src20' && !topic4 || contract.type === 'src721' && topic4) {
           let sender = topic2.slice(12)
           let receiver = topic3.slice(12)
           if (Buffer.compare(sender, Buffer.alloc(20)) !== 0) {

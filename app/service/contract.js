@@ -34,26 +34,26 @@ class ContractService extends Service {
   }
 
   async getContractSummary(contractAddress, addressIds) {
-    const {Contract, Qrc20: QRC20, Qrc20Statistics: QRC20Statistics, Qrc721: QRC721} = this.ctx.model
-    const {balance: balanceService, qrc20: qrc20Service, qrc721: qrc721Service} = this.ctx.service
+    const {Contract, Src20: SRC20, Src20Statistics: SRC20Statistics, Src721: SRC721} = this.ctx.model
+    const {balance: balanceService, src20: src20Service, src721: src721Service} = this.ctx.service
     let contract = await Contract.findOne({
       where: {address: contractAddress},
       attributes: ['addressString', 'vm', 'type'],
       include: [
         {
-          model: QRC20,
-          as: 'qrc20',
+          model: SRC20,
+          as: 'src20',
           required: false,
           attributes: ['name', 'symbol', 'decimals', 'totalSupply', 'version'],
           include: [{
-            model: QRC20Statistics,
+            model: SRC20Statistics,
             as: 'statistics',
             required: true
           }]
         },
         {
-          model: QRC721,
-          as: 'qrc721',
+          model: SRC721,
+          as: 'src721',
           required: false,
           attributes: ['name', 'symbol', 'totalSupply']
         }
@@ -63,14 +63,14 @@ class ContractService extends Service {
     let [
       {totalReceived, totalSent},
       unconfirmed,
-      qrc20Balances,
-      qrc721Balances,
+      src20Balances,
+      src721Balances,
       transactionCount
     ] = await Promise.all([
       balanceService.getTotalBalanceChanges(addressIds),
       balanceService.getUnconfirmedBalance(addressIds),
-      qrc20Service.getAllQRC20Balances([contractAddress]),
-      qrc721Service.getAllQRC721Balances([contractAddress]),
+      src20Service.getAllSRC20Balances([contractAddress]),
+      src721Service.getAllSRC721Balances([contractAddress]),
       this.getContractTransactionCount(contractAddress, addressIds)
     ])
     return {
@@ -78,36 +78,36 @@ class ContractService extends Service {
       addressHex: contractAddress,
       vm: contract.vm,
       type: contract.type,
-      ...contract.type === 'qrc20' ? {
-        qrc20: {
-          name: contract.qrc20.name,
-          symbol: contract.qrc20.symbol,
-          decimals: contract.qrc20.decimals,
-          totalSupply: contract.qrc20.totalSupply,
-          version: contract.qrc20.version,
-          holders: contract.qrc20.statistics.holders,
-          transactions: contract.qrc20.statistics.transactions
+      ...contract.type === 'src20' ? {
+        src20: {
+          name: contract.src20.name,
+          symbol: contract.src20.symbol,
+          decimals: contract.src20.decimals,
+          totalSupply: contract.src20.totalSupply,
+          version: contract.src20.version,
+          holders: contract.src20.statistics.holders,
+          transactions: contract.src20.statistics.transactions
         }
       } : {},
-      ...contract.type === 'qrc721' ? {
-        qrc721: {
-          name: contract.qrc721.name,
-          symbol: contract.qrc721.symbol,
-          totalSupply: contract.qrc721.totalSupply
+      ...contract.type === 'src721' ? {
+        src721: {
+          name: contract.src721.name,
+          symbol: contract.src721.symbol,
+          totalSupply: contract.src721.totalSupply
         }
       } : {},
       balance: totalReceived - totalSent,
       totalReceived,
       totalSent,
       unconfirmed,
-      qrc20Balances,
-      qrc721Balances,
+      src20Balances,
+      src721Balances,
       transactionCount
     }
   }
 
   async getContractTransactionCount(contractAddress, addressIds) {
-    const TransferABI = this.app.sicashinfo.lib.Solidity.qrc20ABIs.find(abi => abi.name === 'Transfer')
+    const TransferABI = this.app.sicashinfo.lib.Solidity.src20ABIs.find(abi => abi.name === 'Transfer')
     const db = this.ctx.model
     let {sql} = this.ctx.helper
     let topic = Buffer.concat([Buffer.alloc(12), contractAddress])
@@ -126,12 +126,12 @@ class ContractService extends Service {
         SELECT receipt.transaction_id AS transaction_id FROM evm_receipt receipt, evm_receipt_log log, contract
         WHERE log.receipt_id = receipt._id
           AND ${this.ctx.service.block.getRawBlockFilter('receipt.block_height')}
-          AND contract.address = log.address AND contract.type IN ('qrc20', 'qrc721')
+          AND contract.address = log.address AND contract.type IN ('src20', 'src721')
           AND log.topic1 = ${TransferABI.id}
           AND (log.topic2 = ${topic} OR log.topic3 = ${topic})
           AND (
-            (contract.type = 'qrc20' AND log.topic3 IS NOT NULL AND log.topic4 IS NULL)
-            OR (contract.type = 'qrc721' AND log.topic4 IS NOT NULL)
+            (contract.type = 'src20' AND log.topic3 IS NOT NULL AND log.topic4 IS NULL)
+            OR (contract.type = 'src721' AND log.topic4 IS NOT NULL)
           )
       ) list
     `, {type: db.QueryTypes.SELECT, transaction: this.ctx.state.transaction})
@@ -139,7 +139,7 @@ class ContractService extends Service {
   }
 
   async getContractTransactions(contractAddress, addressIds) {
-    const TransferABI = this.app.sicashinfo.lib.Solidity.qrc20ABIs.find(abi => abi.name === 'Transfer')
+    const TransferABI = this.app.sicashinfo.lib.Solidity.src20ABIs.find(abi => abi.name === 'Transfer')
     const db = this.ctx.model
     let {sql} = this.ctx.helper
     let {limit, offset, reversed = true} = this.ctx.state.pagination
@@ -164,12 +164,12 @@ class ContractService extends Service {
           FROM evm_receipt receipt, evm_receipt_log log, contract
           WHERE log.receipt_id = receipt._id
             AND ${this.ctx.service.block.getRawBlockFilter('receipt.block_height')}
-            AND contract.address = log.address AND contract.type IN ('qrc20', 'qrc721')
+            AND contract.address = log.address AND contract.type IN ('src20', 'src721')
             AND log.topic1 = ${TransferABI.id}
             AND (log.topic2 = ${topic} OR log.topic3 = ${topic})
             AND (
-              (contract.type = 'qrc20' AND log.topic3 IS NOT NULL AND log.topic4 IS NULL)
-              OR (contract.type = 'qrc721' AND log.topic4 IS NOT NULL)
+              (contract.type = 'src20' AND log.topic3 IS NOT NULL AND log.topic4 IS NULL)
+              OR (contract.type = 'src721' AND log.topic4 IS NOT NULL)
             )
         ) list
         ORDER BY block_height ${{raw: order}}, index_in_block ${{raw: order}}, _id ${{raw: order}}

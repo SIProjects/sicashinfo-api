@@ -300,7 +300,7 @@ GET /tx/ebf05fbf8dcf10f03a73331abd1ea934d66c03a72ee4a57addeab0225ad9289f
   "fees": "1573960",
   "size": 299,
   "weight": 1196,
-  "qrc20TokenTransfers": [
+  "src20TokenTransfers": [
     {
       "address": "f2033ede578e17fa6231047265010445bca8cf1c",
       "addressHex": "f2033ede578e17fa6231047265010445bca8cf1c",

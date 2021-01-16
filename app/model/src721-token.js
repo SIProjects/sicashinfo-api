@@ -1,7 +1,7 @@
 module.exports = app => {
   const {CHAR} = app.Sequelize
 
-  let QRC721Token = app.model.define('qrc721_token', {
+  let SRC721Token = app.model.define('src721_token', {
     contractAddress: {
       type: CHAR(20).BINARY,
       primaryKey: true
@@ -13,11 +13,11 @@ module.exports = app => {
     holder: CHAR(20).BINARY
   }, {freezeTableName: true, underscored: true, timestamps: false})
 
-  QRC721Token.associate = () => {
+  SRC721Token.associate = () => {
     const {Contract} = app.model
-    Contract.hasMany(QRC721Token, {as: 'qrc721Tokens', foreignKey: 'contractAddress'})
-    QRC721Token.belongsTo(Contract, {as: 'contract', foreignKey: 'contractAddress'})
+    Contract.hasMany(SRC721Token, {as: 'src721Tokens', foreignKey: 'contractAddress'})
+    SRC721Token.belongsTo(Contract, {as: 'contract', foreignKey: 'contractAddress'})
   }
 
-  return QRC721Token
+  return SRC721Token
 }

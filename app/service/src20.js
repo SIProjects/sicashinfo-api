@@ -1,31 +1,31 @@
 const {Service} = require('egg')
 
-class QRC20Service extends Service {
-  async listQRC20Tokens() {
+class SRC20Service extends Service {
+  async listSRC20Tokens() {
     const db = this.ctx.model
-    const {Qrc20Statistics: QRC20Statistics} = db
+    const {Src20Statistics: SRC20Statistics} = db
     const {sql} = this.ctx.helper
     const {gt: $gt} = this.app.Sequelize.Op
     let {limit, offset} = this.ctx.state.pagination
 
-    let totalCount = await QRC20Statistics.count({
+    let totalCount = await SRC20Statistics.count({
       where: {transactions: {[$gt]: 0}},
       transaction: this.ctx.state.transaction
     })
     let list = await db.query(sql`
       SELECT
         contract.address_string AS address, contract.address AS addressHex,
-        qrc20.name AS name, qrc20.symbol AS symbol, qrc20.decimals AS decimals, qrc20.total_supply AS totalSupply,
-        qrc20.version AS version,
+        src20.name AS name, src20.symbol AS symbol, src20.decimals AS decimals, src20.total_supply AS totalSupply,
+        src20.version AS version,
         list.holders AS holders,
         list.transactions AS transactions
       FROM (
-        SELECT contract_address, holders, transactions FROM qrc20_statistics
+        SELECT contract_address, holders, transactions FROM src20_statistics
         WHERE transactions > 0
         ORDER BY transactions DESC
         LIMIT ${offset}, ${limit}
       ) list
-      INNER JOIN qrc20 USING (contract_address)
+      INNER JOIN src20 USING (contract_address)
       INNER JOIN contract ON contract.address = list.contract_address
       ORDER BY transactions DESC
     `, {type: db.QueryTypes.SELECT, transaction: this.ctx.state.transaction})
@@ -46,19 +46,19 @@ class QRC20Service extends Service {
     }
   }
 
-  async getAllQRC20Balances(hexAddresses) {
+  async getAllSRC20Balances(hexAddresses) {
     if (hexAddresses.length === 0) {
       return []
     }
     const {OutputScript, Solidity} = this.app.sicashinfo.lib
-    const transferABI = Solidity.qrc20ABIs.find(abi => abi.name === 'transfer')
+    const transferABI = Solidity.src20ABIs.find(abi => abi.name === 'transfer')
     const {
       Address, TransactionOutput,
-      Contract, EvmReceipt: EVMReceipt, Qrc20: QRC20, Qrc20Balance: QRC20Balance,
+      Contract, EvmReceipt: EVMReceipt, Src20: SRC20, Src20Balance: SRC20Balance,
       where, col
     } = this.ctx.model
     const {in: $in} = this.app.Sequelize.Op
-    let list = await QRC20.findAll({
+    let list = await SRC20.findAll({
       attributes: ['contractAddress', 'name', 'symbol', 'decimals'],
       include: [{
         model: Contract,
@@ -66,8 +66,8 @@ class QRC20Service extends Service {
         required: true,
         attributes: ['addressString'],
         include: [{
-          model: QRC20Balance,
-          as: 'qrc20Balances',
+          model: SRC20Balance,
+          as: 'src20Balances',
           required: true,
           where: {address: {[$in]: hexAddresses}},
           attributes: ['balance']
@@ -83,7 +83,7 @@ class QRC20Service extends Service {
         name: item.name,
         symbol: item.symbol,
         decimals: item.decimals,
-        balance: item.contract.qrc20Balances.map(({balance}) => balance).reduce((x, y) => x + y),
+        balance: item.contract.src20Balances.map(({balance}) => balance).reduce((x, y) => x + y),
         unconfirmed: {
           received: 0n,
           sent: 0n
@@ -114,8 +114,8 @@ class QRC20Service extends Service {
               required: true,
               attributes: ['address', 'addressString'],
               include: [{
-                model: QRC20,
-                as: 'qrc20',
+                model: SRC20,
+                as: 'src20',
                 required: true,
                 attributes: ['name', 'symbol', 'decimals']
               }]
@@ -142,9 +142,9 @@ class QRC20Service extends Service {
           data = {
             address: item.output.address.contract.address.toString('hex'),
             addressHex: item.output.address.contract.address,
-            name: item.output.address.contract.qrc20.name,
-            symbol: item.output.address.contract.qrc20.symbol,
-            decimals: item.output.address.contract.qrc20.decimals,
+            name: item.output.address.contract.src20.name,
+            symbol: item.output.address.contract.src20.symbol,
+            decimals: item.output.address.contract.src20.decimals,
             balance: 0n,
             unconfirmed: {
               received: 0n,
@@ -173,12 +173,12 @@ class QRC20Service extends Service {
     return [...mapping.values()].filter(item => !item.isNew)
   }
 
-  async getQRC20Balance(rawAddresses, tokenAddress) {
+  async getSRC20Balance(rawAddresses, tokenAddress) {
     const {Address: RawAddress, OutputScript, Solidity} = this.app.sicashinfo.lib
-    const transferABI = Solidity.qrc20ABIs.find(abi => abi.name === 'transfer')
+    const transferABI = Solidity.src20ABIs.find(abi => abi.name === 'transfer')
     const {
       Address, TransactionOutput,
-      Contract, EvmReceipt: EVMReceipt, Qrc20: QRC20, Qrc20Balance: QRC20Balance,
+      Contract, EvmReceipt: EVMReceipt, Src20: SRC20, Src20Balance: SRC20Balance,
       where, col
     } = this.ctx.model
     const {in: $in} = this.app.Sequelize.Op
@@ -188,12 +188,12 @@ class QRC20Service extends Service {
     if (hexAddresses.length === 0) {
       return []
     }
-    let token = await QRC20.findOne({
+    let token = await SRC20.findOne({
       where: {contractAddress: tokenAddress},
       attributes: ['name', 'symbol', 'decimals'],
       transaction: this.ctx.state.transaction
     })
-    let list = await QRC20Balance.findAll({
+    let list = await SRC20Balance.findAll({
       where: {contractAddress: tokenAddress, address: {[$in]: hexAddresses}},
       attributes: ['balance'],
       transaction: this.ctx.state.transaction
@@ -261,14 +261,14 @@ class QRC20Service extends Service {
     }
   }
 
-  async getQRC20BalanceHistory(addresses, tokenAddress) {
-    const TransferABI = this.app.sicashinfo.lib.Solidity.qrc20ABIs.find(abi => abi.name === 'Transfer')
+  async getSRC20BalanceHistory(addresses, tokenAddress) {
+    const TransferABI = this.app.sicashinfo.lib.Solidity.src20ABIs.find(abi => abi.name === 'Transfer')
     const db = this.ctx.model
     const {sql} = this.ctx.helper
     const {
       Header, Transaction,
       EvmReceipt: EVMReceipt, EvmReceiptLog: EVMReceiptLog,
-      Contract, Qrc20: QRC20, Qrc20Balance: QRC20Balance,
+      Contract, Src20: SRC20, Src20Balance: SRC20Balance,
       literal
     } = db
     const {ne: $ne, and: $and, or: $or, in: $in} = this.app.Sequelize.Op
@@ -289,8 +289,8 @@ class QRC20Service extends Service {
 
     let [{totalCount}] = await db.query(sql`
       SELECT COUNT(DISTINCT(receipt.transaction_id)) AS totalCount
-      FROM evm_receipt receipt, evm_receipt_log log, qrc20
-      WHERE receipt._id = log.receipt_id AND log.address = qrc20.contract_address AND ${{raw: logFilter}}
+      FROM evm_receipt receipt, evm_receipt_log log, src20
+      WHERE receipt._id = log.receipt_id AND log.address = src20.contract_address AND ${{raw: logFilter}}
     `, {type: db.QueryTypes.SELECT, transaction: this.ctx.state.transaction})
     if (totalCount === 0) {
       return {totalCount: 0, transactions: []}
@@ -298,8 +298,8 @@ class QRC20Service extends Service {
     let ids = (await db.query(sql`
       SELECT transaction_id AS id FROM evm_receipt receipt
       INNER JOIN (
-        SELECT DISTINCT(receipt.transaction_id) AS id FROM evm_receipt receipt, evm_receipt_log log, qrc20
-        WHERE receipt._id = log.receipt_id AND log.address = qrc20.contract_address AND ${{raw: logFilter}}
+        SELECT DISTINCT(receipt.transaction_id) AS id FROM evm_receipt receipt, evm_receipt_log log, src20
+        WHERE receipt._id = log.receipt_id AND log.address = src20.contract_address AND ${{raw: logFilter}}
       ) list ON list.id = receipt.transaction_id
       ORDER BY receipt.block_height ${{raw: order}}, receipt.index_in_block ${{raw: order}},
         receipt.transaction_id ${{raw: order}}, receipt.output_index ${{raw: order}}
@@ -345,8 +345,8 @@ class QRC20Service extends Service {
               attributes: ['addressString']
             },
             {
-              model: QRC20,
-              as: 'qrc20',
+              model: SRC20,
+              as: 'src20',
               required: true,
               attributes: ['name', 'symbol', 'decimals']
             }
@@ -362,7 +362,7 @@ class QRC20Service extends Service {
     }
     let initialBalanceMap = new Map()
     if (list.length > 0) {
-      let intialBalanceList = await QRC20Balance.findAll({
+      let intialBalanceList = await SRC20Balance.findAll({
         where: {
           ...tokenAddress ? {contractAddress: tokenAddress} : {},
           address: {[$in]: addresses}
@@ -452,9 +452,9 @@ class QRC20Service extends Service {
           result.tokens.push({
             address,
             addressHex: log.address,
-            name: log.qrc20.name.toString(),
-            symbol: log.qrc20.symbol.toString(),
-            decimals: log.qrc20.decimals,
+            name: log.src20.name.toString(),
+            symbol: log.src20.symbol.toString(),
+            decimals: log.src20.decimals,
             amount: delta
           })
         }
@@ -474,8 +474,8 @@ class QRC20Service extends Service {
     return {totalCount, transactions}
   }
 
-  async getAllQRC20TokenTransactions() {
-    const TransferABI = this.app.sicashinfo.lib.Solidity.qrc20ABIs.find(abi => abi.name === 'Transfer')
+  async getAllSRC20TokenTransactions() {
+    const TransferABI = this.app.sicashinfo.lib.Solidity.src20ABIs.find(abi => abi.name === 'Transfer')
     const db = this.ctx.model
     const {sql} = this.ctx.helper
     let {limit, offset, reversed = true} = this.ctx.state.pagination
@@ -483,8 +483,8 @@ class QRC20Service extends Service {
 
     let [{totalCount}] = await db.query(sql`
       SELECT COUNT(*) AS totalCount
-      FROM qrc20, evm_receipt_log log
-      WHERE qrc20.contract_address = log.address AND log.topic1 = ${TransferABI.id}
+      FROM src20, evm_receipt_log log
+      WHERE src20.contract_address = log.address AND log.topic1 = ${TransferABI.id}
     `, {type: db.QueryTypes.SELECT, transaction: this.ctx.state.transaction})
     let transactions = await db.query(sql`
       SELECT
@@ -493,20 +493,20 @@ class QRC20Service extends Service {
         evm_receipt.block_height AS blockHeight,
         header.hash AS blockHash,
         header.timestamp AS timestamp,
-        qrc20.name AS name,
-        qrc20.symbol AS symbol,
-        qrc20.decimals AS decimals,
+        src20.name AS name,
+        src20.symbol AS symbol,
+        src20.decimals AS decimals,
         evm_receipt_log.topic2 AS topic2,
         evm_receipt_log.topic3 AS topic3,
         evm_receipt_log.data AS data
       FROM (
-        SELECT log._id AS _id FROM qrc20, evm_receipt_log log
-        WHERE qrc20.contract_address = log.address AND log.topic1 = ${TransferABI.id}
+        SELECT log._id AS _id FROM src20, evm_receipt_log log
+        WHERE src20.contract_address = log.address AND log.topic1 = ${TransferABI.id}
         ORDER BY log._id ${{raw: order}} LIMIT ${offset}, ${limit}
       ) list
       INNER JOIN evm_receipt_log ON evm_receipt_log._id = list._id
       INNER JOIN evm_receipt ON evm_receipt._id = evm_receipt_log.receipt_id
-      INNER JOIN qrc20 ON qrc20.contract_address = evm_receipt_log.address
+      INNER JOIN src20 ON src20.contract_address = evm_receipt_log.address
       INNER JOIN transaction ON transaction._id = evm_receipt.transaction_id
       INNER JOIN header ON header.height = evm_receipt.block_height
       ORDER BY list._id ${{raw: order}}
@@ -539,8 +539,8 @@ class QRC20Service extends Service {
     }
   }
 
-  async getQRC20TokenTransactions(contractAddress) {
-    const TransferABI = this.app.sicashinfo.lib.Solidity.qrc20ABIs.find(abi => abi.name === 'Transfer')
+  async getSRC20TokenTransactions(contractAddress) {
+    const TransferABI = this.app.sicashinfo.lib.Solidity.src20ABIs.find(abi => abi.name === 'Transfer')
     const db = this.ctx.model
     const {EvmReceiptLog: EVMReceiptLog} = db
     const {sql} = this.ctx.helper
@@ -598,17 +598,17 @@ class QRC20Service extends Service {
     }
   }
 
-  async getQRC20TokenRichList(contractAddress) {
+  async getSRC20TokenRichList(contractAddress) {
     const db = this.ctx.model
-    const {Qrc20Balance: QRC20Balance} = db
+    const {Src20Balance: SRC20Balance} = db
     const {ne: $ne} = this.app.Sequelize.Op
     let {limit, offset} = this.ctx.state.pagination
 
-    let totalCount = await QRC20Balance.count({
+    let totalCount = await SRC20Balance.count({
       where: {contractAddress, balance: {[$ne]: Buffer.alloc(32)}},
       transaction: this.ctx.state.transaction
     })
-    let list = await QRC20Balance.findAll({
+    let list = await SRC20Balance.findAll({
       where: {contractAddress, balance: {[$ne]: Buffer.alloc(32)}},
       attributes: ['address', 'balance'],
       order: [['balance', 'DESC']],
@@ -632,18 +632,18 @@ class QRC20Service extends Service {
     }
   }
 
-  async updateQRC20Statistics() {
-    const TransferABI = this.app.sicashinfo.lib.Solidity.qrc20ABIs.find(abi => abi.name === 'Transfer')
+  async updateSRC20Statistics() {
+    const TransferABI = this.app.sicashinfo.lib.Solidity.src20ABIs.find(abi => abi.name === 'Transfer')
     const db = this.ctx.model
-    const {Qrc20: QRC20, Qrc20Statistics: QRC20Statistics} = db
+    const {Src20: SRC20, Src20Statistics: SRC20Statistics} = db
     const {sql} = this.ctx.helper
     let transaction = await db.transaction()
     try {
-      let result = (await QRC20.findAll({attributes: ['contractAddress'], transaction})).map(
+      let result = (await SRC20.findAll({attributes: ['contractAddress'], transaction})).map(
         ({contractAddress}) => ({contractAddress, holders: 0, transactions: 0})
       )
       let balanceResults = await db.query(sql`
-        SELECT contract_address AS contractAddress, COUNT(*) AS count FROM qrc20_balance
+        SELECT contract_address AS contractAddress, COUNT(*) AS count FROM src20_balance
         WHERE balance != ${Buffer.alloc(32)}
         GROUP BY contractAddress ORDER BY contractAddress
       `, {type: db.QueryTypes.SELECT, transaction})
@@ -686,8 +686,8 @@ class QRC20Service extends Service {
           }
         }
       }
-      await db.query(sql`DELETE FROM qrc20_statistics`, {transaction})
-      await QRC20Statistics.bulkCreate(result, {validate: false, transaction, logging: false})
+      await db.query(sql`DELETE FROM src20_statistics`, {transaction})
+      await SRC20Statistics.bulkCreate(result, {validate: false, transaction, logging: false})
       await transaction.commit()
     } catch (err) {
       await transaction.rollback()
@@ -695,4 +695,4 @@ class QRC20Service extends Service {
   }
 }
 
-module.exports = QRC20Service
+module.exports = SRC20Service

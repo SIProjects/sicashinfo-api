@@ -1,9 +1,9 @@
 const {Controller} = require('egg')
 
-class QRC20Controller extends Controller {
+class SRC20Controller extends Controller {
   async list() {
     const {ctx} = this
-    let {totalCount, tokens} = await ctx.service.qrc20.listQRC20Tokens()
+    let {totalCount, tokens} = await ctx.service.src20.listSRC20Tokens()
     ctx.body = {
       totalCount,
       tokens: tokens.map(item => ({
@@ -22,7 +22,7 @@ class QRC20Controller extends Controller {
 
   async allTransactions() {
     const {ctx} = this
-    let {totalCount, transactions} = await ctx.service.qrc20.getAllQRC20TokenTransactions()
+    let {totalCount, transactions} = await ctx.service.src20.getAllSRC20TokenTransactions()
     ctx.body = {
       totalCount,
       transactions: transactions.map(transaction => ({
@@ -47,8 +47,8 @@ class QRC20Controller extends Controller {
 
   async transactions() {
     const {ctx} = this
-    ctx.assert(ctx.state.token.type === 'qrc20', 404)
-    let {totalCount, transactions} = await ctx.service.qrc20.getQRC20TokenTransactions(ctx.state.token.contractAddress)
+    ctx.assert(ctx.state.token.type === 'src20', 404)
+    let {totalCount, transactions} = await ctx.service.src20.getSRC20TokenTransactions(ctx.state.token.contractAddress)
     ctx.body = {
       totalCount,
       transactions: transactions.map(transaction => ({
@@ -68,8 +68,8 @@ class QRC20Controller extends Controller {
 
   async richList() {
     const {ctx} = this
-    ctx.assert(ctx.state.token.type === 'qrc20', 404)
-    let {totalCount, list} = await ctx.service.qrc20.getQRC20TokenRichList(ctx.state.token.contractAddress)
+    ctx.assert(ctx.state.token.type === 'src20', 404)
+    let {totalCount, list} = await ctx.service.src20.getSRC20TokenRichList(ctx.state.token.contractAddress)
     ctx.body = {
       totalCount,
       list: list.map(item => ({
@@ -81,4 +81,4 @@ class QRC20Controller extends Controller {
   }
 }
 
-module.exports = QRC20Controller
+module.exports = SRC20Controller

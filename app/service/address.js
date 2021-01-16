@@ -4,7 +4,7 @@ class AddressService extends Service {
   async getAddressSummary(addressIds, p2pkhAddressIds, rawAddresses) {
     const {Address} = this.ctx.app.sicashinfo.lib
     const {Block} = this.ctx.model
-    const {balance: balanceService, qrc20: qrc20Service, qrc721: qrc721Service} = this.ctx.service
+    const {balance: balanceService, src20: src20Service, src721: src721Service} = this.ctx.service
     const {in: $in, gt: $gt} = this.app.Sequelize.Op
     let hexAddresses = rawAddresses.filter(address => address.type === Address.PAY_TO_PUBLIC_KEY_HASH).map(address => address.data)
     let [
@@ -12,8 +12,8 @@ class AddressService extends Service {
       unconfirmed,
       staking,
       mature,
-      qrc20Balances,
-      qrc721Balances,
+      src20Balances,
+      src721Balances,
       ranking,
       blocksMined,
       transactionCount
@@ -22,8 +22,8 @@ class AddressService extends Service {
       balanceService.getUnconfirmedBalance(addressIds),
       balanceService.getStakingBalance(addressIds),
       balanceService.getMatureBalance(p2pkhAddressIds),
-      qrc20Service.getAllQRC20Balances(hexAddresses),
-      qrc721Service.getAllQRC721Balances(hexAddresses),
+      src20Service.getAllSRC20Balances(hexAddresses),
+      src721Service.getAllSRC721Balances(hexAddresses),
       balanceService.getBalanceRanking(addressIds),
       Block.count({where: {minerId: {[$in]: p2pkhAddressIds}, height: {[$gt]: 0}}, transaction: this.ctx.state.transaction}),
       this.getAddressTransactionCount(addressIds, rawAddresses),
@@ -35,8 +35,8 @@ class AddressService extends Service {
       unconfirmed,
       staking,
       mature,
-      qrc20Balances,
-      qrc721Balances,
+      src20Balances,
+      src721Balances,
       ranking,
       transactionCount,
       blocksMined
@@ -45,7 +45,7 @@ class AddressService extends Service {
 
   async getAddressTransactionCount(addressIds, rawAddresses) {
     const {Address: RawAddress, Solidity} = this.app.sicashinfo.lib
-    const TransferABI = Solidity.qrc20ABIs.find(abi => abi.name === 'Transfer')
+    const TransferABI = Solidity.src20ABIs.find(abi => abi.name === 'Transfer')
     const db = this.ctx.model
     const {Address} = db
     const {sql} = this.ctx.helper
@@ -64,12 +64,12 @@ class AddressService extends Service {
         SELECT receipt.transaction_id AS transaction_id FROM evm_receipt receipt, evm_receipt_log log, contract
         WHERE receipt._id = log.receipt_id
           AND ${this.ctx.service.block.getRawBlockFilter('receipt.block_height')}
-          AND contract.address = log.address AND contract.type IN ('qrc20', 'qrc721')
+          AND contract.address = log.address AND contract.type IN ('src20', 'src721')
           AND log.topic1 = ${TransferABI.id}
           AND (log.topic2 IN ${topics} OR log.topic3 IN ${topics})
           AND (
-            (contract.type = 'qrc20' AND log.topic3 IS NOT NULL AND log.topic4 IS NULL)
-            OR (contract.type = 'qrc721' AND log.topic4 IS NOT NULL)
+            (contract.type = 'src20' AND log.topic3 IS NOT NULL AND log.topic4 IS NULL)
+            OR (contract.type = 'src721' AND log.topic4 IS NOT NULL)
           )
       ) list
     `, {type: db.QueryTypes.SELECT, transaction: this.ctx.state.transaction})
@@ -78,7 +78,7 @@ class AddressService extends Service {
 
   async getAddressTransactions(addressIds, rawAddresses) {
     const {Address: RawAddress, Solidity} = this.app.sicashinfo.lib
-    const TransferABI = Solidity.qrc20ABIs.find(abi => abi.name === 'Transfer')
+    const TransferABI = Solidity.src20ABIs.find(abi => abi.name === 'Transfer')
     const db = this.ctx.model
     const {Address} = db
     const {sql} = this.ctx.helper
@@ -103,12 +103,12 @@ class AddressService extends Service {
           FROM evm_receipt receipt, evm_receipt_log log, contract
           WHERE receipt._id = log.receipt_id
             AND ${this.ctx.service.block.getRawBlockFilter('receipt.block_height')}
-            AND contract.address = log.address AND contract.type IN ('qrc20', 'qrc721')
+            AND contract.address = log.address AND contract.type IN ('src20', 'src721')
             AND log.topic1 = ${TransferABI.id}
             AND (log.topic2 IN ${topics} OR log.topic3 IN ${topics})
             AND (
-              (contract.type = 'qrc20' AND log.topic3 IS NOT NULL AND log.topic4 IS NULL)
-              OR (contract.type = 'qrc721' AND log.topic4 IS NOT NULL)
+              (contract.type = 'src20' AND log.topic3 IS NOT NULL AND log.topic4 IS NULL)
+              OR (contract.type = 'src721' AND log.topic4 IS NOT NULL)
             )
         ) list
         ORDER BY block_height ${{raw: order}}, index_in_block ${{raw: order}}, _id ${{raw: order}}
@@ -214,9 +214,9 @@ class AddressService extends Service {
     return {totalCount, transactions}
   }
 
-  async getAddressQRC20TokenTransactionCount(rawAddresses, token) {
+  async getAddressSRC20TokenTransactionCount(rawAddresses, token) {
     const {Address, Solidity} = this.app.sicashinfo.lib
-    const TransferABI = Solidity.qrc20ABIs.find(abi => abi.name === 'Transfer')
+    const TransferABI = Solidity.src20ABIs.find(abi => abi.name === 'Transfer')
     const {EvmReceiptLog: EVMReceiptLog} = this.ctx.model
     const {or: $or, in: $in} = this.app.Sequelize.Op
     let topicAddresses = rawAddresses
@@ -235,9 +235,9 @@ class AddressService extends Service {
     })
   }
 
-  async getAddressQRC20TokenTransactions(rawAddresses, token) {
+  async getAddressSRC20TokenTransactions(rawAddresses, token) {
     const {Address, Solidity} = this.app.sicashinfo.lib
-    const TransferABI = Solidity.qrc20ABIs.find(abi => abi.name === 'Transfer')
+    const TransferABI = Solidity.src20ABIs.find(abi => abi.name === 'Transfer')
     const db = this.ctx.model
     const {sql} = this.ctx.helper
     let {limit, offset, reversed = true} = this.ctx.state.pagination
@@ -245,7 +245,7 @@ class AddressService extends Service {
     let topicAddresses = rawAddresses
       .filter(address => address.type === Address.PAY_TO_PUBLIC_KEY_HASH)
       .map(address => Buffer.concat([Buffer.alloc(12), address.data]))
-    let totalCount = await this.getAddressQRC20TokenTransactionCount(rawAddresses, token)
+    let totalCount = await this.getAddressSRC20TokenTransactionCount(rawAddresses, token)
     let transactions = await db.query(sql`
       SELECT
         transaction.id AS transactionId,
@@ -267,7 +267,7 @@ class AddressService extends Service {
       INNER JOIN evm_receipt receipt ON receipt._id = log.receipt_id
       INNER JOIN header ON header.height = receipt.block_height
       INNER JOIN transaction ON transaction._id = receipt.transaction_id
-      INNER JOIN qrc20 ON qrc20.contract_address = log.address
+      INNER JOIN src20 ON src20.contract_address = log.address
       ORDER BY list._id ${{raw: order}}
     `, {type: db.QueryTypes.SELECT, transaction: this.ctx.state.transaction})
 
@@ -304,9 +304,9 @@ class AddressService extends Service {
     }
   }
 
-  async getAddressQRC20TokenMempoolTransactions(rawAddresses, token) {
+  async getAddressSRC20TokenMempoolTransactions(rawAddresses, token) {
     const {Address: RawAddress, OutputScript, Solidity} = this.app.sicashinfo.lib
-    const transferABI = Solidity.qrc20ABIs.find(abi => abi.name === 'transfer')
+    const transferABI = Solidity.src20ABIs.find(abi => abi.name === 'transfer')
     const {Address, Transaction, TransactionOutput, Contract, EvmReceipt: EVMReceipt, where, col} = this.ctx.model
     let hexAddresses = rawAddresses
       .filter(address => address.type === RawAddress.PAY_TO_PUBLIC_KEY_HASH)
@@ -339,7 +339,7 @@ class AddressService extends Service {
               model: Contract,
               as: 'contract',
               required: true,
-              where: {address: token.contractAddress, type: 'qrc20'},
+              where: {address: token.contractAddress, type: 'src20'},
               attributes: []
             }]
           }]
