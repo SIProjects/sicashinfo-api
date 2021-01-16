@@ -36,8 +36,8 @@
 
 
 ## API Endpoint
-* `https://sicash.info/api/` for mainnet
-* `https://testnet.sicash.info/api/` for testnet
+* `https://explorer.sicash.network/api/` for mainnet
+* `https://testnet.sicash.network/api/` for testnet
 
 
 ## Pagination Parameters
