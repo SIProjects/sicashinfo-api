@@ -36,7 +36,7 @@ class InfoService extends Service {
   }
 
   getTotalMaxSupply() {
-    return (108150000) + 2628000 * 8250 * (1 - 1 / 2 ** 64) / (1 - 1 / 2)
+    return 42e9
   }
 
   getCirculatingSupply() {
