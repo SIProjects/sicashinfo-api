@@ -16,16 +16,16 @@ GET /info
 **Response**
 ```json
 {
-  "height": 405961,
-  "supply": 101603844,
-  "circulatingSupply": 95853844,
-  "netStakeWeight": 1095728543244388,
-  "feeRate": 0.00401787,
+  "height":165800,
+  "supply":1434750000,
+  "circulatingSupply":1434750000,
+  "netStakeWeight":34580232869248940,
+  "feeRate":0.004,
   "dgpInfo": {
-    "maxBlockSize": 2000000,
-    "minGasPrice": 40,
-    "blockGasLimit": 40000000
-  }
+    "maxBlockSize":2000000,
+    "minGasPrice":40,
+    "blockGasLimit":40000000}
+    }
 }
 ```
 
@@ -39,7 +39,7 @@ GET /supply
 
 **Response**
 ```json
-101603852
+1434783000
 ```
 
 
@@ -52,5 +52,5 @@ GET /total-max-supply
 
 **Response**
 ```json
-107822406.25
+42000000000
 ```
